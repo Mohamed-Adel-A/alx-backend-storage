@@ -30,3 +30,8 @@ def log_stats(mongo_collection):
     for method, count in method_counts.items():
         print(f"    method {method}: {count}")
     print(f"{status_check_count} status check")
+
+if __name__ == "__main__":
+    client = MongoClient('mongodb://127.0.0.1:27017')
+    logs_collection = client.logs.nginx
+    log_stats(logs_collection)
