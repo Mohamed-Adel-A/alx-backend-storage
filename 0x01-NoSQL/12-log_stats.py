@@ -15,23 +15,17 @@ def log_stats(mongo_collection):
     Returns:
         None
     """
-    # Total number of logs
-    total_logs = mongo_collection.count_documents({})
-
-    # Number of logs by method
-    methods = ["GET", "POST", "PUT", "PATCH", "DELETE"]
-    method_counts = {method: mongo_collection.count_documents({"method": method}) for method in methods}
-
-    # Number of logs with method=GET and path=/status
-    status_check_count = mongo_collection.count_documents({"method": "GET", "path": "/status"})
-
-    print(f"{total_logs} logs")
-    print("Methods:")
-    for method, count in method_counts.items():
-        print(f"    method {method}: {count}")
-    print(f"{status_check_count} status check")
+    print('{} logs'.format(nginx_collection.count_documents({})))
+    print('Methods:')
+    methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+    for method in methods:
+        req_count = len(list(nginx_collection.find({'method': method})))
+        print('\tmethod {}: {}'.format(method, req_count))
+    status_checks_count = len(list(
+        nginx_collection.find({'method': 'GET', 'path': '/status'})
+    ))
+    print('{} status check'.format(status_checks_count))
 
 if __name__ == "__main__":
     client = MongoClient('mongodb://127.0.0.1:27017')
-    logs_collection = client.logs.nginx
-    log_stats(logs_collection)
+    print_nginx_request_logs(client.logs.nginx)
