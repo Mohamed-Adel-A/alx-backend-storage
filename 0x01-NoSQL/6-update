@@ -1,1 +1,6 @@
-#!/usr/bin/env bash
+// 6-update.js
+
+db.school.updateMany(
+    { "name": "Holberton school" },
+    { "$set": { "address": "972 Mission street" } }
+);
