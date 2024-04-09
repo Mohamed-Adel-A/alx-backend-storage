@@ -1055,7 +1055,7 @@ Write a SQL script that creates a stored procedure `ComputeAverageWeightedScoreF
 
 **Tips**:
 
--   [Calculate-Weighted-Average](https://intranet.alxswe.com/rltoken/QHx92mlF43zF6GTEil-Cyw "Calculate-Weighted-Average")
+-   [Calculate-Weighted-Average](https://www.wikihow.com/Calculate-Weighted-Average "Calculate-Weighted-Average")
 
 ```
 bob@dylan:~$ cat 100-init.sql
@@ -1171,7 +1171,7 @@ Write a SQL script that creates a stored procedure `ComputeAverageWeightedScoreF
 
 **Tips**:
 
--   [Calculate-Weighted-Average](https://intranet.alxswe.com/rltoken/QHx92mlF43zF6GTEil-Cyw "Calculate-Weighted-Average")
+-   [Calculate-Weighted-Average](https://www.wikihow.com/Calculate-Weighted-Average "Calculate-Weighted-Average")
 
 ```
 bob@dylan:~$ cat 101-init.sql
