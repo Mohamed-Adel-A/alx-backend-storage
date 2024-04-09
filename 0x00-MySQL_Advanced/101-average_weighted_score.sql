@@ -1,40 +1,32 @@
--- SQL script to create a stored procedure ComputeAverageWeightedScoreForUsers
-
--- Procedure to compute and store the average weighted score for all students
-DELIMITER //
-
-CREATE PROCEDURE ComputeAverageWeightedScoreForUsers()
+-- Creates a stored procedure ComputeAverageWeightedScoreForUsers that
+-- computes and stores the average weighted score for all students.
+DROP PROCEDURE IF EXISTS ComputeAverageWeightedScoreForUsers;
+DELIMITER $$
+CREATE PROCEDURE ComputeAverageWeightedScoreForUsers ()
 BEGIN
-    -- Declare variables for cursor and user id
-    DECLARE done INT DEFAULT FALSE;
-    DECLARE user_id INT;
+    ALTER TABLE users ADD total_weighted_score FLOAT;
+    ALTER TABLE users ADD total_weight FLOAT;
 
-    -- Declare cursor for selecting all user ids
-    DECLARE users_cursor CURSOR FOR
-    SELECT id FROM users;
+    UPDATE users
+        SET total_weighted_score = (
+            SELECT SUM(corrections.score * projects.weight)
+            FROM corrections
+                INNER JOIN projects ON corrections.project_id = projects.id
+            WHERE corrections.user_id = users.id
+        );
 
-    -- Declare continue handler for cursor
-    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+    UPDATE users
+        SET total_weight = (
+            SELECT SUM(projects.weight)
+            FROM corrections
+                INNER JOIN projects ON corrections.project_id = projects.id
+            WHERE corrections.user_id = users.id
+        );
 
-    -- Open cursor
-    OPEN users_cursor;
+    UPDATE users
+        SET users.average_score = IF(total_weight = 0, 0, total_weighted_score / total_weight);
 
-    -- Loop through all user ids
-    users_loop: LOOP
-        -- Fetch user id from cursor
-        FETCH users_cursor INTO user_id;
-
-        -- Check if done
-        IF done THEN
-            LEAVE users_loop;
-        END IF;
-
-        -- Call procedure to compute average score for the user
-        CALL ComputeAverageScoreForUser(user_id);
-    END LOOP;
-
-    -- Close cursor
-    CLOSE users_cursor;
-END //
-
+    ALTER TABLE users DROP COLUMN total_weighted_score;
+    ALTER TABLE users DROP COLUMN total_weight;
+END $$
 DELIMITER ;
