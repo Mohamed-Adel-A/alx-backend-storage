@@ -1,1 +1,27 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
+"""
+Lists all documents with `name` starting by `Holberton` in the collection `school`.
+"""
+
+from pymongo import MongoClient
+
+def regex_filter(mongo_collection):
+    """
+    Lists all documents with `name` starting by `Holberton` in the collection `school`.
+
+    Args:
+        mongo_collection: pymongo collection object.
+
+    Returns:
+        None
+    """
+    regex_pattern = "^Holberton.*"
+    query = {"name": {"$regex": regex_pattern}}
+    documents = mongo_collection.find(query)
+    for doc in documents:
+        print(doc)
+
+if __name__ == "__main__":
+    client = MongoClient('mongodb://127.0.0.1:27017')
+    school_collection = client.my_db.school
+    regex_filter(school_collection)
