@@ -1,1 +1,5 @@
-#!/usr/bin/env bash
+// 7-delete.js
+
+db.school.deleteMany(
+    { "name": "Holberton school" }
+);
