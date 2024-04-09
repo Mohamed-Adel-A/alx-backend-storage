@@ -29,8 +29,8 @@ BEGIN
             LEAVE users_loop;
         END IF;
 
-        -- Call procedure to compute average weighted score for the user
-        CALL ComputeAverageWeightedScoreForUser(user_id);
+        -- Call procedure to compute average score for the user
+        CALL ComputeAverageScoreForUser(user_id);
     END LOOP;
 
     -- Close cursor
