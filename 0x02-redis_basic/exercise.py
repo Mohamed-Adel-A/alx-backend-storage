@@ -1,76 +1,37 @@
 #!/usr/bin/env python3
 """
-Redis basic
+Module to interact with Redis as a cache
 """
-
-import uuid
 import redis
+import uuid
 from typing import Union
 
 class Cache:
     """
-    Cache class
+    Cache class to interact with Redis
     """
-    def __init__(self):
+
+    def __init__(self) -> None:
         """
-        Initialize Cache class
+        Initializes the Redis client and flushes the database
         """
-        self._redis = redis.Redis()
+        self._redis: redis.Redis = redis.Redis()
         self._redis.flushdb()
 
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """
-        Store data in Redis
+        Stores data in Redis with a randomly generated key
         """
         key = str(uuid.uuid4())
         self._redis.set(key, data)
         return key
 
-    def get(self, key: str, fn=None) -> Union[str, bytes, int, float]:
-        """
-        Retrieve data from Redis
-        """
-        data = self._redis.get(key)
-        if fn:
-            return fn(data)
-        return data
+# Testing
+if __name__ == "__main__":
+    cache = Cache()
+    data = b"hello"
+    key = cache.store(data)
+    print(key)
 
-def count_calls(method):
-    """
-    Decorator to count method calls
-    """
-    import functools
-
-    @functools.wraps(method)
-    def wrapper(self, *args, **kwargs):
-        """
-        Wrapper function
-        """
-        key = method.__qualname__
-        self._redis.incr(key)
-        return method(self, *args, **kwargs)
-
-    return wrapper
-
-def call_history(method):
-    """
-    Decorator to store history of inputs and outputs
-    """
-    import functools
-
-    @functools.wraps(method)
-    def wrapper(self, *args, **kwargs):
-        """
-        Wrapper function
-        """
-        inputs_key = "{}:inputs".format(method.__qualname__)
-        outputs_key = "{}:outputs".format(method.__qualname__)
-
-        self._redis.rpush(inputs_key, str(args))
-        result = method(self, *args, **kwargs)
-        self._redis.rpush(outputs_key, str(result))
-
-        return result
-
-    return wrapper
-
+    local_redis = redis.Redis()
+    print(local_redis.get(key))
