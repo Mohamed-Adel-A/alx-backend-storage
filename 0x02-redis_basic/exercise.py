@@ -7,6 +7,48 @@ import uuid
 import redis
 from typing import Union
 
+
+def count_calls(method):
+    """
+    Decorator to count method calls
+    """
+    import functools
+
+    @functools.wraps(method)
+    def wrapper(self, *args, **kwargs):
+        """
+        Wrapper function
+        """
+        key = method.__qualname__
+        self._redis.incr(key)
+        return method(self, *args, **kwargs)
+
+    return wrapper
+
+
+def call_history(method):
+    """
+    Decorator to store history of inputs and outputs
+    """
+    import functools
+
+    @functools.wraps(method)
+    def wrapper(self, *args, **kwargs):
+        """
+        Wrapper function
+        """
+        inputs_key = "{}:inputs".format(method.__qualname__)
+        outputs_key = "{}:outputs".format(method.__qualname__)
+
+        self._redis.rpush(inputs_key, str(args))
+        result = method(self, *args, **kwargs)
+        self._redis.rpush(outputs_key, str(result))
+
+        return result
+
+    return wrapper
+
+
 class Cache:
     """
     Cache class
@@ -47,43 +89,3 @@ class Cache:
         Retrieves data from Redis and converts it to an integer
         """
         return self.get(key, fn=int)
-
-
-def count_calls(method):
-    """
-    Decorator to count method calls
-    """
-    import functools
-
-    @functools.wraps(method)
-    def wrapper(self, *args, **kwargs):
-        """
-        Wrapper function
-        """
-        key = method.__qualname__
-        self._redis.incr(key)
-        return method(self, *args, **kwargs)
-
-    return wrapper
-
-def call_history(method):
-    """
-    Decorator to store history of inputs and outputs
-    """
-    import functools
-
-    @functools.wraps(method)
-    def wrapper(self, *args, **kwargs):
-        """
-        Wrapper function
-        """
-        inputs_key = "{}:inputs".format(method.__qualname__)
-        outputs_key = "{}:outputs".format(method.__qualname__)
-
-        self._redis.rpush(inputs_key, str(args))
-        result = method(self, *args, **kwargs)
-        self._redis.rpush(outputs_key, str(result))
-
-        return result
-
-    return wrapper
