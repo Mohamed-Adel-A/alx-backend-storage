@@ -35,6 +35,19 @@ class Cache:
             return fn(data)
         return data
 
+    def get_str(self, key: str):
+        """
+        Retrieves data from Redis and decodes it as UTF-8
+        """
+        return self.get(key, fn=lambda x: x.decode("utf-8"))
+
+    def get_int(self, key: str):
+        """
+        Retrieves data from Redis and converts it to an integer
+        """
+        return self.get(key, fn=int)
+
+
 def count_calls(method):
     """
     Decorator to count method calls
