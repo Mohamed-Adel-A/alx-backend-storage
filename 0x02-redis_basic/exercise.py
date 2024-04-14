@@ -5,17 +5,17 @@ Redis basic
 
 import uuid
 import redis
-from typing import Union
+from typing import Union, Any, Callable
 
 
-def count_calls(method):
+def count_calls(method: Callable) -> Callable:
     """
     Decorator to count method calls
     """
     import functools
 
     @functools.wraps(method)
-    def wrapper(self, *args, **kwargs):
+    def wrapper(self, *args, **kwargs) -> Any:
         """
         Wrapper function
         """
@@ -26,14 +26,14 @@ def count_calls(method):
     return wrapper
 
 
-def call_history(method):
+def call_history(method: Callable) -> Callable:
     """
     Decorator to store history of inputs and outputs
     """
     import functools
 
     @functools.wraps(method)
-    def wrapper(self, *args, **kwargs):
+    def wrapper(self, *args, **kwargs) -> Any:
         """
         Wrapper function
         """
@@ -60,6 +60,7 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
+    @call_history
     @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """
