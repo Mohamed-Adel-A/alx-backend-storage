@@ -4,34 +4,40 @@ Web cache module
 """
 import requests
 import redis
+from typing import Callable
+from functools import wraps
 
 
 # Connect to Redis
 r = redis.Redis()
 
 
+def data_cacher(method: Callable) -> Callable:
+    '''
+    Caches the output of fetched data.
+    '''
+    @wraps(method)
+    def invoker(url) -> str:
+        '''
+        The wrapper function for caching the output.
+        '''
+        r.incr(f'count:{url}')
+        result = r.get(f'result:{url}')
+        if result:
+            return result.decode('utf-8')
+        content = method(url)
+        r.set(f'count:{url}', 0)
+        r.setex(f'result:{url}', 10, content)
+        return content
+    return invoker
+
+
+@data_cacher
 def get_page(url: str) -> str:
-    """
-    Retrieve HTML content of a URL and cache the result
-    """
-
-    # Count increments when get_page is called
-    r.incr(f'count:{url}')
-
-    # Check if the URL is already cached
-    cached_html = r.get(f'result:{url}')
-    if cached_html:
-        return cached_html.decode('utf-8')
-
-    # Fetch the HTML content from the URL
+    '''
+    Returns the content of a URL after caching the request's response,
+    and tracking the request.
+    '''
     response = requests.get(url)
     html_content = response.text
-
-    # Cache the HTML content with expiration time of 10 seconds
-    r.setex(f'result:{url}', 10, html_content)
-
-    # Track the number of times the URL is accessed
-    count_key = f"count:{url}"
-    r.set(count_key, 0)
-
     return html_content
