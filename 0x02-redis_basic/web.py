@@ -7,9 +7,6 @@ import redis
 from datetime import timedelta
 
 
-
-
-
 def get_page(url: str) -> str:
     """
     Retrieve HTML content of a URL and cache the result
