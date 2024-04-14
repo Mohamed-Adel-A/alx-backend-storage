@@ -4,16 +4,22 @@ Web cache module
 """
 import requests
 import redis
+from datetime import timedelta
 
 
-# Connect to Redis
-r = redis.Redis()
+
 
 
 def get_page(url: str) -> str:
     """
     Retrieve HTML content of a URL and cache the result
     """
+
+    if url is None:
+        return ""
+
+    # Connect to Redis
+    r = redis.Redis()
 
     # Count increments when get_page is called
     r.incr(f'count:{url}')
@@ -28,7 +34,7 @@ def get_page(url: str) -> str:
     html_content = response.text
 
     # Cache the HTML content with expiration time of 10 seconds
-    r.setex(f'result:{url}', 10, html_content)
+    r.setex(f'result:{url}', timedelta(seconds=10), html_content)
 
     # Track the number of times the URL is accessed
     count_key = f"count:{url}"
