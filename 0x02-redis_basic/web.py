@@ -34,10 +34,11 @@ def get_page(url: str) -> str:
     html_content = response.text
 
     # Cache the HTML content with expiration time of 10 seconds
-    r.setex(f'result:{url}', timedelta(seconds=10), html_content)
+    r.setex(f'result:{url}',
+            timedelta(seconds=10), html_content)
 
     # Track the number of times the URL is accessed
     count_key = f"count:{url}"
     r.set(count_key, 0)
 
-    return html_content
+    return html_content.decode('utf-8')
