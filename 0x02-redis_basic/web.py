@@ -24,11 +24,11 @@ def get_page(url: str) -> str:
     # Check if the URL is already cached
     cached_html = r.get(f'result:{url}')
     if cached_html:
-        return cached_html.decode('utf-8')
+        return str(cached_html)
 
     # Fetch the HTML content from the URL
     response = requests.get(url)
-    html_content = response.text
+    html_content = response.content.decode('utf-8')
 
     # Cache the HTML content with expiration time of 10 seconds
     r.setex(f'result:{url}',
@@ -38,4 +38,4 @@ def get_page(url: str) -> str:
     count_key = f"count:{url}"
     r.set(count_key, 0)
 
-    return html_content.decode('utf-8')
+    return str(html_content)
