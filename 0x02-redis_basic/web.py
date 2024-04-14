@@ -1,42 +1,37 @@
 #!/usr/bin/env python3
 """
-Web Cache
+Web cache module
 """
-
 import requests
 import redis
-import time
-from typing import Callable
 
 def get_page(url: str) -> str:
     """
-    Retrieve HTML content of a URL
+    Retrieve HTML content of a URL and cache the result
     """
-    redis_client = redis.Redis()
-    page_key = f"page:{url}"
-    count_key = f"count:{url}"
+    # Connect to Redis
+    r = redis.Redis()
 
-    # Check if page is cached
-    cached_page = redis_client.get(page_key)
-    if cached_page:
-        redis_client.incr(count_key)
-        return cached_page.decode('utf-8')  # Decoding bytes to str
+    # Check if the URL is already cached
+    cached_html = r.get(url)
+    if cached_html:
+        return cached_html.decode('utf-8')
 
-    # Retrieve page from the web
+    # Fetch the HTML content from the URL
     response = requests.get(url)
-    if response.status_code == 200:
-        page_content = response.text
-        redis_client.setex(page_key, 10, page_content)  # Cache with expiration time
-        redis_client.incr(count_key)
-        time.sleep(10)  # Wait for 10 seconds
-        redis_client.delete(page_key)  # Remove page from cache after 10 seconds
-        return page_content
-    else:
-        return f"Error: Failed to retrieve page - Status code {response.status_code}"
+    html_content = response.text
+
+    # Cache the HTML content with expiration time of 10 seconds
+    r.setex(url, 10, html_content)
+
+    # Track the number of times the URL is accessed
+    count_key = f"count:{url}"
+    r.incr(count_key)
+
+    return html_content
 
 if __name__ == "__main__":
-    url = "http://google.com"
-    print(get_page(url))  # First call to cache
-    print(get_page(url))  # Second call should be retrieved from cache
-    print(get_page(url))  # Third call should trigger removal from cache
-    print(get_page(url))  # Fourth call should not find the page in cache
+    # Test the get_page function
+    url = "http://slowwly.robertomurray.co.uk/delay/5000/url/http://www.google.com"
+    for _ in range(5):
+        print(get_page(url))
