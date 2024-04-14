@@ -6,12 +6,14 @@ import requests
 import redis
 
 
+# Connect to Redis
+r = redis.Redis()
+
+
 def get_page(url: str) -> str:
     """
     Retrieve HTML content of a URL and cache the result
     """
-    # Connect to Redis
-    r = redis.Redis()
 
     # Count increments when get_page is called
     r.incr(f'count:{url}')
