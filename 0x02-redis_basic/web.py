@@ -13,6 +13,9 @@ def get_page(url: str) -> str:
     # Connect to Redis
     r = redis.Redis()
 
+    # Count increments when get_page is called
+    r.incr(f'count:{url}')
+
     # Check if the URL is already cached
     cached_html = r.get(url)
     if cached_html:
@@ -27,6 +30,6 @@ def get_page(url: str) -> str:
 
     # Track the number of times the URL is accessed
     count_key = f"count:{url}"
-    r.incr(count_key)
+    r.set(count_key, 0)
 
     return html_content
