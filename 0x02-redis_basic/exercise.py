@@ -75,7 +75,6 @@ def replay(method: Callable) -> None:
         ))
 
 
-
 class Cache:
     """
     Cache class
