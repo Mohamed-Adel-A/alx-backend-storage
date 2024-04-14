@@ -5,6 +5,7 @@ Web cache module
 import requests
 import redis
 
+
 def get_page(url: str) -> str:
     """
     Retrieve HTML content of a URL and cache the result
@@ -29,9 +30,3 @@ def get_page(url: str) -> str:
     r.incr(count_key)
 
     return html_content
-
-if __name__ == "__main__":
-    # Test the get_page function
-    url = "http://slowwly.robertomurray.co.uk/delay/5000/url/http://www.google.com"
-    for _ in range(5):
-        print(get_page(url))
